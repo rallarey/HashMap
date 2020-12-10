@@ -10,9 +10,18 @@
 #include "hashNode.hpp"
 #include <iostream>
 #include <math.h>
+#include <string>
 using namespace std;
 
 hashMap::hashMap(bool hash1, bool coll1) {
+	mapSize = 11;
+	map = new hashNode*[mapSize]();
+	first = "";
+	numKeys = 0;
+	hashfn = hash1;
+	collfn = coll1;
+	hashcoll = 0;
+	collisions = 0;
 
 }
 
@@ -25,10 +34,23 @@ int hashMap::getIndex(string k) {
 }
 
 int hashMap::calcHash2(string k){
+	int nextPrime = getClosestPrime();
+	int key = 0;
+	key = (k[0] + (27*k[1])) + (pow(27,2)*k[2]); // pow(27,2) -> 27^2
+	return key;
+
+	// treat first 3 characters of string as base-27 integer;
 
 }
 
 int hashMap::calcHash1(string k){
+	int asciiSum = 0;
+	int length = k.length(); // length of string
+
+	for (int i = 0; i <= length; i++){
+		asciiSum += int(k[i]); // casting a string to an int gets the ascii value
+	}
+	return asciiSum % mapSize; // mapSize gets changed to closest prime
 
 }
 
@@ -43,6 +65,7 @@ void hashMap::getClosestPrime() {
 			found = true;
 		}
 	}
+	mapSize = nextPrime;
 }
 
 bool hashMap::isPrime(int x){
