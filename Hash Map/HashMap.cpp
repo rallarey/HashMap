@@ -26,18 +26,76 @@ hashMap::hashMap(bool hash1, bool coll1) {
 }
 
 void hashMap::addKeyValue(string k, string v) {
+	int index = getIndex(k);
+	if (index == NULL){
+		// add new hashnode with the strings
+
+	} else if (map[index]->keyword == k){
+		//call hashnode addvalue
+	}
+
 
 }
 
 int hashMap::getIndex(string k) {
+	int index;
+	int collisionIndex;
+	int i = 1;
+
+	if (hashfn){ // uses hashfn (boolean) determining whether to use calc hash 1 or 2
+		index = calcHash1(k);
+		if (map[index] != NULL || map[index]->keyword != k){
+
+			hashcoll++;
+
+			if(collfn){ // uses collfn (boolean) determining whether to use coll 1 or 2
+				collisionIndex = coll1(index, i, k);
+				collisions++;
+			} else {
+				collisionIndex = coll2(index, i, k);
+				collisions++;
+			}
+
+			if (map[collisionIndex] == NULL || map[collisionIndex]->keyword == k){
+				return collisionIndex;
+			}
+
+			i++;
+
+		} else if (map[index] == NULL || map[index]->keyword == k){
+			return index;
+		}
+	} else {
+		index = calcHash2(k);
+		if (map[index] != NULL || map[index]->keyword != k){
+
+			hashcoll++;
+
+			if(collfn){
+				collisionIndex = coll1(index, i, k);
+				collisions++;
+			} else {
+				collisionIndex = coll2(index, i, k);
+				collisions++;
+			}
+
+			if (map[collisionIndex] == NULL || map[collisionIndex]->keyword == k){
+				return collisionIndex;
+			}
+
+			i++;
+
+		} else if (map[index] == NULL || map[index]->keyword == k){
+			return index;
+		}
+	}
 
 }
 
 int hashMap::calcHash2(string k){
-	int nextPrime = getClosestPrime();
 	int key = 0;
 	key = (k[0] + (27*k[1])) + (pow(27,2)*k[2]); // pow(27,2) -> 27^2
-	return key;
+	return key % mapSize;
 
 	// treat first 3 characters of string as base-27 integer;
 
@@ -82,15 +140,33 @@ void hashMap::reHash() {
 
 }
 
-int hashMap::coll1(int h, int i, string k) {
-
+int hashMap::coll1(int h, int i, string k) { // double hashing
+	int key;
+	if (hashfn){
+		key = calcHash1(k);
+	} else {
+		key = calcHash2(k);
+	}
+	return (h + (i*(i+key))) % mapSize; // second hash
 }
 
-int hashMap::coll2(int h, int i, string k) {
-
+int hashMap::coll2(int h, int i, string k) { // linear probing
+	int nextIndex = i+1;
+	if (nextIndex >= mapSize){
+		return 0;
+	} else {
+		return nextIndex;
+	}
 }
 
 int hashMap::findKey(string k) {
+	int index;
+	index = getIndex(k);
+	if(map[index]->keyword == k){
+		return index;
+	} else {
+		return -1;
+	}
 
 //NOTE: THIS METHOD CANNOT LOOP from index 0 to end of hash array looking for the key.  That destroys any efficiency in run-time. 
 }
