@@ -23,6 +23,7 @@ class hashMap {
 	string first; // for first keyword for printing to a file
 	int numKeys;  // Number of keys currently in the hashMap
 	int mapSize;  // total size of the hashMap array
+	int oldMapSize;
 	bool hashfn;  // a bool indicating whether to use hash 
 			//function 1 or hash function 2 (we're comparing 
 			//hash function efficiencies)

@@ -5,7 +5,6 @@
  *      Author: 13027
  */
 
-
 #include "hashMap.hpp"
 #include "hashNode.hpp"
 #include <iostream>
@@ -15,6 +14,7 @@ using namespace std;
 
 hashMap::hashMap(bool hash1, bool coll1) {
 	mapSize = 11;
+	oldMapSize = 11;
 	map = new hashNode*[mapSize]();
 	first = "";
 	numKeys = 0;
@@ -27,14 +27,57 @@ hashMap::hashMap(bool hash1, bool coll1) {
 
 void hashMap::addKeyValue(string k, string v) {
 	int index = getIndex(k);
-	if (index == NULL){
+	bool newIndex = true;
+	int i = 1;
+
+	if (map[index] == NULL){
 		// add new hashnode with the strings
+
+		hashNode *newNode = new hashNode(k,v);
+		map[index] = newNode;
+		numKeys++;
 
 	} else if (map[index]->keyword == k){
 		//call hashnode addvalue
+
+		map[index]->addValue(v);
+
+	} else if (map[index]->keyword != k){
+
+		while (newIndex){ // if node has different keyword, keeps calculating new hash index
+
+			hashcoll++;
+			int collisionIndex;
+
+			if(collfn){ // calculating new collision Index;
+				collisionIndex = coll1(index, i, k);
+				collisions++;
+			} else {
+				collisionIndex = coll2(index, i, k);
+				collisions++;
+			}
+
+			if (map[collisionIndex] == NULL){  // checks if map at index is null, then adds node
+
+				hashNode *newNode = new hashNode(k,v);
+				map[collisionIndex] = newNode;
+				numKeys++;
+				newIndex = false;
+
+			} else if (map[collisionIndex]->keyword == k){ // checks if keyword matches node index
+
+				map[collisionIndex]->addValue(v);
+				newIndex = false;
+			}
+
+			i++; // iteration
+
+		}
 	}
 
-
+	if (numKeys *10 >= mapSize * 7){
+		reHash();
+	}
 }
 
 int hashMap::getIndex(string k) {
@@ -137,7 +180,18 @@ bool hashMap::isPrime(int x){
 }
 
 void hashMap::reHash() {
+	int index;
+	getClosestPrime();
+	hashNode **newMap;
+	newMap = new hashNode*[mapSize]();
 
+	for (int i = 0; i < oldMapSize; i++){
+		if(map[i] != NULL){
+			index = getIndex(map[i]->keyword);
+			newMap[index] = map[i];
+		}
+	}
+	delete map;
 }
 
 int hashMap::coll1(int h, int i, string k) { // double hashing
