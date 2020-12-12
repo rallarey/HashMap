@@ -87,7 +87,7 @@ int hashMap::getIndex(string k) {
 
 	if (hashfn){ // uses hashfn (boolean) determining whether to use calc hash 1 or 2
 		index = calcHash1(k);
-		if (map[index] != NULL || map[index]->keyword != k){
+		if (map[index] != NULL && map[index]->keyword != k){
 
 			hashcoll++;
 
@@ -99,18 +99,18 @@ int hashMap::getIndex(string k) {
 				collisions++;
 			}
 
-			if (map[collisionIndex] == NULL || map[collisionIndex]->keyword == k){
+			if (map[collisionIndex] == NULL && map[collisionIndex]->keyword == k){
 				return collisionIndex;
 			}
 
 			i++;
 
-		} else if (map[index] == NULL || map[index]->keyword == k){
+		} else if (map[index] == NULL && map[index]->keyword == k){
 			return index;
 		}
 	} else {
 		index = calcHash2(k);
-		if (map[index] != NULL || map[index]->keyword != k){
+		if (map[index] != NULL && map[index]->keyword != k){
 
 			hashcoll++;
 
@@ -122,22 +122,30 @@ int hashMap::getIndex(string k) {
 				collisions++;
 			}
 
-			if (map[collisionIndex] == NULL || map[collisionIndex]->keyword == k){
+			if (map[collisionIndex] == NULL && map[collisionIndex]->keyword == k){
 				return collisionIndex;
 			}
 
 			i++;
 
-		} else if (map[index] == NULL || map[index]->keyword == k){
+		} else if (map[index] == NULL && map[index]->keyword == k){
 			return index;
 		}
 	}
-
 }
 
 int hashMap::calcHash2(string k){
 	int key = 0;
-	key = (k[0] + (27*k[1])) + (pow(27,2)*k[2]); // pow(27,2) -> 27^2
+	if (k.length() >= 3){
+		key = (int(k[0]) + (27*int(k[1]))) + (pow(27,2)*int(k[2])); // pow(27,2) -> 27^2
+
+	} else if (k.length() == 2){
+		key = (int(k[0]) + (27*int(k[1])));
+
+	} else if (k.length() == 1){
+		key = int(k[0]);
+
+	}
 	return key % mapSize;
 
 	// treat first 3 characters of string as base-27 integer;
@@ -191,7 +199,6 @@ void hashMap::reHash() {
 			newMap[index] = map[i];
 		}
 	}
-	delete map;
 }
 
 int hashMap::coll1(int h, int i, string k) { // double hashing
